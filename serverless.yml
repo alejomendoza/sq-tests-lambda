@@ -1,0 +1,36 @@
+service: lambda-service
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+package:
+  exclude:
+    - node_modules/**
+
+provider:
+  name: aws
+  apiGateway:
+    shouldStartNameWithService: true
+    binaryMediaTypes:
+      - '*/*'
+  runtime: nodejs14.x
+  region: us-west-1
+
+functions:
+  hello:
+    handler: src/handler.default
+    events:
+      - http:
+          method: get
+          path: test
+    environment:
+      NODE_PATH: './:/opt/nodejs/node_modules'
+      FONTCONFIG_PATH: '/var/task/fonts'
+    layers:
+      - arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:24
+
+custom:
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    packager: 'npm'
