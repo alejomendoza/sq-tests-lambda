@@ -1,6 +1,7 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const slsw = require('serverless-webpack');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: 'production',
@@ -26,4 +27,18 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: './jest.config.js',
+          to: './jest.config.js',
+        },
+        {
+          from: './src/web.test.js',
+          to: './src/web.test.js',
+        },
+      ],
+    }),
+  ],
 };

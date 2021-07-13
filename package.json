@@ -25,7 +25,8 @@
     "webpack-node-externals": "^3.0.0"
   },
   "scripts": {
-    "start": "serverless offline",
+    "start": "serverless offline --httpPort 5000",
+    "deploy": "serverless deploy",
     "package": "serverless package",
     "jest:init": "jest --init",
     "test": "jest"

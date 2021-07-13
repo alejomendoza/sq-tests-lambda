@@ -1,4 +1,6 @@
-service: lambda-service
+org: alejomendoza
+app: sq-e2e-tests
+service: sq-e2e-tests
 
 plugins:
   - serverless-webpack
@@ -26,9 +28,9 @@ functions:
           path: test
     environment:
       NODE_PATH: './:/opt/nodejs/node_modules'
-      FONTCONFIG_PATH: '/var/task/fonts'
     layers:
-      - arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:24
+      - arn:aws:lambda:us-west-1:764866452798:layer:chrome-aws-lambda:24
+      - arn:aws:lambda:us-west-1:389502703865:layer:jest-layer-package:1
 
 custom:
   webpack:

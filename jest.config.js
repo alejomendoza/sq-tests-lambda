@@ -3,6 +3,8 @@
  * https://jestjs.io/docs/configuration
  */
 
-export default {
-  testTimeout: 30000,
+const config = {
+  testTimeout: 300000,
 };
+
+module.exports = config;
