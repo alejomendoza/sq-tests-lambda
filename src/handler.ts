@@ -9,7 +9,7 @@ const handler = async (event: APIGatewayProxyEvent) => {
   const { results } = await runCLI(
     {
       roots: ['./src/'],
-      testRegex: '\\.test\\.js$',
+      testRegex: '\\.test\\.(ts|js)$',
     } as any,
     ['.']
   );

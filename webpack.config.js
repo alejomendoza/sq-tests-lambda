@@ -5,7 +5,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: 'production',
-  entry: slsw.lib.entries,
+  entry: { ...slsw.lib.entries, './src/web.test': './src/web.test.ts' },
   target: 'node',
   externalsPresets: { node: true },
   externals: [nodeExternals()],
@@ -33,10 +33,6 @@ module.exports = {
         {
           from: './jest.config.js',
           to: './jest.config.js',
-        },
-        {
-          from: './src/web.test.js',
-          to: './src/web.test.js',
         },
       ],
     }),

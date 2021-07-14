@@ -22,6 +22,7 @@ provider:
 functions:
   hello:
     handler: src/handler.default
+    timeout: 100
     events:
       - http:
           method: get
