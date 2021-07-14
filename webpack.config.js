@@ -1,22 +1,36 @@
 const path = require('path');
-const nodeExternals = require('webpack-node-externals');
+const glob = require('glob');
+const webpack = require('webpack');
 const slsw = require('serverless-webpack');
+const nodeExternals = require('webpack-node-externals');
 const CopyPlugin = require('copy-webpack-plugin');
+
+const tests = glob
+  .sync('./src/tests/*.test.+(ts|js)')
+  .reduce((accumulator, currentValue) => {
+    const entry = currentValue
+      .replace(/^.*(?=src)/, '')
+      .replace(/\.(js|ts)$/, '');
+    accumulator[entry] = currentValue;
+    return accumulator;
+  }, {});
 
 module.exports = {
   mode: 'production',
-  entry: slsw.lib.entries,
+  entry: {
+    ...slsw.lib.entries,
+    ...tests,
+  },
   target: 'node',
   externalsPresets: { node: true },
   externals: [nodeExternals()],
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, '.webpack'),
-    assetModuleFilename: '[file]',
     libraryTarget: 'commonjs',
   },
   resolve: {
-    extensions: ['.ts', '.js', '.svg', '.ttf', '.png'],
+    extensions: ['.ts', '.js'],
   },
   module: {
     rules: [
@@ -29,16 +43,10 @@ module.exports = {
   },
   plugins: [
     new CopyPlugin({
-      patterns: [
-        {
-          from: './jest.config.js',
-          to: './jest.config.js',
-        },
-        {
-          from: './src/web.test.js',
-          to: './src/web.test.js',
-        },
-      ],
+      patterns: ['./jest.config.js'],
+    }),
+    new webpack.DefinePlugin({
+      'process.env.PRODUCTION': !slsw.lib.webpack.isLocal,
     }),
   ],
 };

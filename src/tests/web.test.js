@@ -1,4 +1,3 @@
-const slsw = require('serverless-webpack');
 const { beforeAll, test, afterAll } = require('@jest/globals');
 // import { Browser, BrowserContext, Page } from 'puppeteer';
 let chromium;
@@ -7,7 +6,7 @@ let browser;
 let context;
 let page;
 
-if (slsw.lib.webpack.isLocal) {
+if (process.env.PRODUCTION) {
   puppeteer = require('puppeteer');
 } else {
   chromium = require('chrome-aws-lambda');
@@ -15,7 +14,7 @@ if (slsw.lib.webpack.isLocal) {
 }
 
 async function launchPuppeteer() {
-  if (slsw.lib.webpack.isLocal) {
+  if (process.env.PRODUCTION) {
     if (!browser) {
       browser = await puppeteer.launch({
         args: [
@@ -23,7 +22,7 @@ async function launchPuppeteer() {
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
         ],
-        headless: false,
+        headless: true,
       });
     }
   } else {
