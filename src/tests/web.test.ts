@@ -1,12 +1,12 @@
-const { beforeAll, test, afterAll } = require('@jest/globals');
-// import { Browser, BrowserContext, Page } from 'puppeteer';
-let chromium;
-let puppeteer;
-let browser;
-let context;
-let page;
+import { beforeAll, test, afterAll } from '@jest/globals';
+import { Browser, BrowserContext, Page } from 'puppeteer';
+let chromium: any;
+let puppeteer: any;
+let browser: Browser;
+let context: BrowserContext;
+let page: Page;
 
-if (process.env.PRODUCTION) {
+if (!process.env.PRODUCTION) {
   puppeteer = require('puppeteer');
 } else {
   chromium = require('chrome-aws-lambda');
@@ -14,7 +14,7 @@ if (process.env.PRODUCTION) {
 }
 
 async function launchPuppeteer() {
-  if (process.env.PRODUCTION) {
+  if (!process.env.PRODUCTION) {
     if (!browser) {
       browser = await puppeteer.launch({
         args: [
@@ -30,7 +30,7 @@ async function launchPuppeteer() {
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath,
-      headless: chromium.headless,
+      headless: true,
       ignoreHTTPSErrors: true,
     });
   }
@@ -119,42 +119,6 @@ test('Opens Discord Auth Page', async () => {
   expect(newPage).toBeTruthy();
 });
 
-test('Log in with Discord Token', async () => {
-  const loginBtn = '[data-testid="loginBtn"]';
-  const dashboardNav = '[data-testid="dashboardNav"]';
-  const discordToken = 'IffcOePJkKqsNRiw5ib3zYrgniNQps';
-
-  await page.waitForSelector(loginBtn);
-
-  const pageTarget = page.target();
-
-  await page.click(loginBtn);
-
-  const newTarget = await browser.waitForTarget(
-    (target) => target.opener() === pageTarget
-  );
-  const newPage = await newTarget.page();
-
-  if (!newPage) {
-    throw 'Did not open discord auth page!';
-  }
-
-  await newPage.waitForNavigation();
-
-  const discordTokenState = await page.evaluate(() => {
-    return localStorage.getItem('discordTokenState');
-  });
-
-  await newPage.goto(
-    `${SITE_URL}/login/auth#state=${discordTokenState}&access_token=${discordToken}`
-  );
-
-  await page.waitForSelector(dashboardNav);
-  const nav = await page.$eval(dashboardNav, (e) => e.hasChildNodes());
-
-  expect(nav).toBeTruthy();
-});
-
 test('Unregistered Discord account redirects to Sign Up page', async () => {
   const loginBtn = '[data-testid="loginBtn"]';
   const discordToken = '1nVen6FYPzD6ZQo4Mh9krxp1jzLrLR';
@@ -189,6 +153,42 @@ test('Unregistered Discord account redirects to Sign Up page', async () => {
 
   const header = await page.$eval(headerSelector, (e) => e.innerHTML);
   expect(header).toBe(`Sign Up`);
+});
+
+test('Log in with Discord Token', async () => {
+  const loginBtn = '[data-testid="loginBtn"]';
+  const dashboardNav = '[data-testid="dashboardNav"]';
+  const discordToken = 'IffcOePJkKqsNRiw5ib3zYrgniNQps';
+
+  await page.waitForSelector(loginBtn);
+
+  const pageTarget = page.target();
+
+  await page.click(loginBtn);
+
+  const newTarget = await browser.waitForTarget(
+    (target) => target.opener() === pageTarget
+  );
+  const newPage = await newTarget.page();
+
+  if (!newPage) {
+    throw 'Did not open discord auth page!';
+  }
+
+  await newPage.waitForNavigation();
+
+  const discordTokenState = await page.evaluate(() => {
+    return localStorage.getItem('discordTokenState');
+  });
+
+  await newPage.goto(
+    `${SITE_URL}/login/auth#state=${discordTokenState}&access_token=${discordToken}`
+  );
+
+  await page.waitForSelector(dashboardNav);
+  const nav = await page.$eval(dashboardNav, (e) => e.hasChildNodes());
+
+  expect(nav).toBeTruthy();
 });
 
 test('Logs user out', async () => {
@@ -247,17 +247,6 @@ test('Logs user out', async () => {
 
   expect(renderedLoginBtn).toBeTruthy();
 });
-
-async function waitForResponse(url) {
-  await page.waitForResponse((response) => {
-    console.log('res url', response.url);
-    return (
-      response.url() === url &&
-      response.status() === 200 &&
-      response.request().resourceType() === 'xhr'
-    );
-  });
-}
 
 test('Start practice Quest', async () => {
   const loginBtn = '[data-testid="loginBtn"]';
