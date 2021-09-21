@@ -28,15 +28,15 @@ async function launchPuppeteer() {
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath,
-      headless: true,
+      headless: false,
       ignoreHTTPSErrors: true,
     });
   }
 }
 
 const SITE_URL = 'https://sq-royale-test.vercel.app/';
-const unregisteredDiscordToken = '1nVen6FYPzD6ZQo4Mh9krxp1jzLrLR';
-const registeredDiscordToken = 'IffcOePJkKqsNRiw5ib3zYrgniNQps';
+const unregisteredDiscordToken = 'pR9FlM39zGLfdwHgKZiCRxJ4nLQVGl';
+const registeredDiscordToken = 'GKeRE0ZgaGFeShZYy4o9Wj3Zm2i1hN';
 
 beforeAll(async () => {
   await launchPuppeteer();
@@ -141,11 +141,13 @@ describe('Logged out Pages', () => {
 describe('Authentication', () => {
   let context: BrowserContext;
   let page: Page;
+  let discordPage: Page | null;
   const loginBtn = '[data-testid="loginBtn"]';
   const logoutBtn = '[data-testid="logoutBtn"]';
   const dashboardNav = '[data-testid="dashboardNav"]';
-  const practiceQuestLink = 'section>div:nth-child(2)>a';
-  const playBtn = 'div[type="primary"]';
+  const practiceQuestLink = '[data-testid="questCard"]';
+  const playBtn = '[data-testid="playBtn"]';
+  const verifyBtn = '[data-testid="verifyBtn"]';
 
   beforeAll(async () => {
     context = await browser.createIncognitoBrowserContext();
@@ -158,7 +160,7 @@ describe('Authentication', () => {
     context.close();
   });
 
-  test('Log in with Discord Token', async () => {
+  test('Open discord auth page', async () => {
     await page.waitForSelector(loginBtn);
 
     const pageTarget = page.target();
@@ -168,19 +170,22 @@ describe('Authentication', () => {
     const newTarget = await browser.waitForTarget(
       (target) => target.opener() === pageTarget
     );
-    const newPage = await newTarget.page();
+    discordPage = await newTarget.page();
 
-    if (!newPage) {
+    expect(discordPage).toBeTruthy();
+  });
+
+  test('Log in with Discord Token', async () => {
+    if (!discordPage) {
       throw 'Did not open discord auth page!';
     }
-
-    await newPage.waitForNavigation();
+    await discordPage.waitForNavigation();
 
     const discordTokenState = await page.evaluate(() => {
       return localStorage.getItem('discordTokenState');
     });
 
-    await newPage.goto(
+    await discordPage.goto(
       `${SITE_URL}/login/auth#state=${discordTokenState}&access_token=${registeredDiscordToken}`
     );
 
@@ -191,21 +196,6 @@ describe('Authentication', () => {
   });
 
   test('Start practice Quest', async () => {
-    await page.waitForSelector(dashboardNav);
-
-    await page.$eval(dashboardNav, (e) => {
-      if (e instanceof HTMLElement) {
-        const practiceElement = e.children[1];
-        if (practiceElement instanceof HTMLElement) {
-          practiceElement.click();
-        } else {
-          throw 'Practice link does not exist';
-        }
-      } else {
-        throw 'Dashboard nav does not exist';
-      }
-    });
-
     await page.waitForSelector(practiceQuestLink);
 
     await page.$eval(practiceQuestLink, (e) => {
@@ -231,18 +221,17 @@ describe('Authentication', () => {
       }
     });
 
-    await page.waitForTimeout(500);
-    await page.waitForSelector(playBtn);
+    await page.waitForSelector(verifyBtn);
 
-    const verifyBtnPage = await page.$eval(playBtn, (e) => {
+    const verifyBtnPage = await page.$eval(verifyBtn, (e) => {
       if (e instanceof HTMLElement) {
-        return e.firstElementChild?.innerHTML;
+        return e.innerHTML;
       } else {
         throw 'Verify Solution Button does not exist';
       }
     });
 
-    expect(verifyBtnPage).toBe(`Verify Solution`);
+    expect(verifyBtnPage).toBe(`Verify`);
   });
 
   test('Logs user out', async () => {

@@ -4,7 +4,7 @@
  */
 
 const config = {
-  testTimeout: 300000,
+  testTimeout: 10000,
 };
 
 module.exports = config;

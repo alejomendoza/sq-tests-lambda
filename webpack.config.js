@@ -5,6 +5,7 @@ const slsw = require('serverless-webpack');
 const nodeExternals = require('webpack-node-externals');
 const CopyPlugin = require('copy-webpack-plugin');
 
+const isLocal = slsw.lib.webpack.isLocal;
 const tests = glob
   .sync('./src/tests/*.test.+(ts|js)')
   .reduce((accumulator, currentValue) => {
@@ -16,7 +17,7 @@ const tests = glob
   }, {});
 
 module.exports = {
-  mode: 'production',
+  mode: isLocal ? 'development' : 'production',
   entry: {
     ...slsw.lib.entries,
     ...tests,
