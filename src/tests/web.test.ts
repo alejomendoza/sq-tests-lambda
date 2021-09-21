@@ -98,44 +98,6 @@ describe('Logged out Pages', () => {
     expect(header).toBe(`Stellar Quest`);
     page.close();
   });
-
-  test('Renders Sign Up page when user attempts to logs in with an unregistered account', async () => {
-    const page = await context.newPage();
-    await page.goto(SITE_URL);
-    const loginBtn = '[data-testid="loginBtn"]';
-    const headerSelector = 'header>h1';
-
-    await page.waitForSelector(loginBtn);
-
-    const pageTarget = page.target();
-
-    await page.click(loginBtn);
-
-    const newTarget = await browser.waitForTarget(
-      (target) => target.opener() === pageTarget
-    );
-    const newPage = await newTarget.page();
-
-    if (!newPage) {
-      throw 'Did not open discord auth page!';
-    }
-
-    await newPage.waitForNavigation();
-
-    const discordTokenState = await page.evaluate(() => {
-      return localStorage.getItem('discordTokenState');
-    });
-
-    await newPage.goto(
-      `${SITE_URL}/login/auth#state=${discordTokenState}&access_token=${unregisteredDiscordToken}`
-    );
-
-    await page.waitForSelector(headerSelector);
-
-    const header = await page.$eval(headerSelector, (e) => e.innerHTML);
-    expect(header).toBe(`Sign Up`);
-    page.close();
-  });
 });
 
 describe('Authentication', () => {
@@ -160,7 +122,47 @@ describe('Authentication', () => {
     context.close();
   });
 
+  test('Renders Sign Up page when user attempts to logs in with an unregistered account', async () => {
+    const page = await context.newPage();
+    await page.goto(SITE_URL);
+    const loginBtn = '[data-testid="loginBtn"]';
+    const headerSelector = 'header>h1';
+
+    await page.waitForSelector(loginBtn);
+
+    const pageTarget = page.target();
+
+    await page.click(loginBtn);
+
+    const newTarget = await browser.waitForTarget(
+      (target) => target.opener() === pageTarget
+    );
+    const newPage = await newTarget.page();
+
+    if (!newPage) {
+      throw 'Did not open discord auth page!';
+    }
+
+    const discordTokenState = await page.evaluate(() => {
+      return localStorage.getItem('discordTokenState');
+    });
+
+    await newPage.goto(
+      `${SITE_URL}/login/auth#state=${discordTokenState}&access_token=${unregisteredDiscordToken}`
+    );
+
+    await page.waitForNavigation();
+
+    await page.waitForSelector(headerSelector);
+
+    const header = await page.$eval(headerSelector, (e) => e.innerHTML);
+    expect(header).toBe(`Sign Up`);
+    page.close();
+  });
+
   test('Open discord auth page', async () => {
+    await page.goto(SITE_URL);
+
     await page.waitForSelector(loginBtn);
 
     const pageTarget = page.target();
@@ -179,7 +181,6 @@ describe('Authentication', () => {
     if (!discordPage) {
       throw 'Did not open discord auth page!';
     }
-    await discordPage.waitForNavigation();
 
     const discordTokenState = await page.evaluate(() => {
       return localStorage.getItem('discordTokenState');
