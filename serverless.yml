@@ -1,10 +1,12 @@
-org: alejomendoza
+org: jesmarsc
 app: sq-e2e-tests
 service: sq-e2e-tests
 
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serverless-deployment-bucket
+  - serverless-layers
 
 package:
   exclude:
@@ -12,28 +14,29 @@ package:
 
 provider:
   name: aws
+  runtime: nodejs12.x
+  region: us-west-1
   apiGateway:
     shouldStartNameWithService: true
-    binaryMediaTypes:
-      - '*/*'
-  runtime: nodejs14.x
-  region: us-west-1
+  deploymentBucket:
+    name: jest-bucket
 
 functions:
   hello:
     handler: src/handler.default
-    timeout: 100
     events:
       - http:
           method: get
           path: test
     environment:
       NODE_PATH: './:/opt/nodejs/node_modules'
-    layers:
-      - arn:aws:lambda:us-west-1:764866452798:layer:chrome-aws-lambda:24
-      - arn:aws:lambda:us-west-1:389502703865:layer:jest-layer-package:1
 
 custom:
   webpack:
     webpackConfig: 'webpack.config.js'
     packager: 'npm'
+  serverless-layers:
+    - common:
+        dependenciesPath: ./package.json
+    - staticArn:
+        arn: arn:aws:lambda:us-west-1:764866452798:layer:chrome-aws-lambda:25

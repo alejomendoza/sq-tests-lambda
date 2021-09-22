@@ -5,7 +5,6 @@ const slsw = require('serverless-webpack');
 const nodeExternals = require('webpack-node-externals');
 const CopyPlugin = require('copy-webpack-plugin');
 
-const isLocal = slsw.lib.webpack.isLocal;
 const tests = glob
   .sync('./src/tests/*.test.+(ts|js)')
   .reduce((accumulator, currentValue) => {
@@ -15,6 +14,8 @@ const tests = glob
     accumulator[entry] = currentValue;
     return accumulator;
   }, {});
+
+const isLocal = slsw.lib.webpack.isLocal;
 
 module.exports = {
   mode: isLocal ? 'development' : 'production',
@@ -46,8 +47,6 @@ module.exports = {
     new CopyPlugin({
       patterns: ['./jest.config.js'],
     }),
-    new webpack.DefinePlugin({
-      'process.env.PRODUCTION': !slsw.lib.webpack.isLocal,
-    }),
+    new webpack.EnvironmentPlugin({ PRODUCTION: !isLocal }),
   ],
 };

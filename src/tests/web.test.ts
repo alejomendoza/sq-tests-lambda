@@ -1,19 +1,28 @@
 import { beforeAll, test, afterAll } from '@jest/globals';
 import { Browser, BrowserContext, Page } from 'puppeteer';
+
 let chromium: any;
 let puppeteer: any;
 let browser: Browser;
 
-if (!process.env.PRODUCTION) {
-  puppeteer = require('puppeteer');
-} else {
+if (process.env.PRODUCTION) {
   chromium = require('chrome-aws-lambda');
   puppeteer = chromium.puppeteer;
+} else {
+  puppeteer = require('puppeteer');
 }
 
-async function launchPuppeteer() {
-  if (!process.env.PRODUCTION) {
-    if (!browser) {
+const setupBrowser = async () => {
+  if (!browser) {
+    if (process.env.PRODUCTION) {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath,
+        headless: true,
+        ignoreHTTPSErrors: true,
+      });
+    } else {
       browser = await puppeteer.launch({
         args: [
           '--no-sandbox',
@@ -23,23 +32,15 @@ async function launchPuppeteer() {
         headless: true,
       });
     }
-  } else {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
-      headless: false,
-      ignoreHTTPSErrors: true,
-    });
   }
-}
+};
 
 const SITE_URL = 'https://sq-royale-test.vercel.app/';
 const unregisteredDiscordToken = 'pR9FlM39zGLfdwHgKZiCRxJ4nLQVGl';
 const registeredDiscordToken = 'GKeRE0ZgaGFeShZYy4o9Wj3Zm2i1hN';
 
 beforeAll(async () => {
-  await launchPuppeteer();
+  await setupBrowser();
 });
 
 afterAll(() => {
