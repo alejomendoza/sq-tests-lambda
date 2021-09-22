@@ -19,7 +19,7 @@ const setupBrowser = async () => {
         args: chromium.args,
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath,
-        headless: true,
+        headless: chromium.headless,
         ignoreHTTPSErrors: true,
       });
     } else {
@@ -60,6 +60,7 @@ describe('Logged out Pages', () => {
 
   test('Renders Home Page', async () => {
     const page = await context.newPage();
+
     await page.goto(SITE_URL);
     const headerTitle = 'header>div>h1>span';
     await page.waitForSelector(headerTitle);

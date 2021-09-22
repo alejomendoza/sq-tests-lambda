@@ -15,7 +15,6 @@
     "copy-webpack-plugin": "^9.0.1",
     "glob": "^7.1.7",
     "puppeteer": "^10.4.0",
-    "serverless": "^2.50.0",
     "serverless-deployment-bucket": "^1.5.1",
     "serverless-layers": "^2.5.1",
     "serverless-offline": "^7.0.0",
