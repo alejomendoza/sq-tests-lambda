@@ -25,9 +25,27 @@ const setupBrowser = async () => {
     } else {
       browser = await puppeteer.launch({
         args: [
-          '--no-sandbox',
+          '--allow-running-insecure-content',
+          '--autoplay-policy=user-gesture-required',
+          '--disable-component-update',
+          '--disable-domain-reliability',
+          '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+          '--disable-print-preview',
           '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
+          '--disable-site-isolation-trials',
+          '--disable-speech-api',
+          '--disable-web-security',
+          '--disk-cache-size=33554432',
+          '--enable-features=SharedArrayBuffer',
+          '--hide-scrollbars',
+          '--ignore-gpu-blocklist',
+          '--in-process-gpu',
+          '--mute-audio',
+          '--no-default-browser-check',
+          '--no-pings',
+          '--no-sandbox',
+          '--no-zygote',
+          '--use-gl=swiftshader',
         ],
         headless: true,
       });
@@ -35,61 +53,59 @@ const setupBrowser = async () => {
   }
 };
 
-const SITE_URL = 'https://sq-royale-test.vercel.app/';
+const SITE_URL = 'https://sq-royale-test.vercel.app';
 const unregisteredDiscordToken = 'pR9FlM39zGLfdwHgKZiCRxJ4nLQVGl';
 const registeredDiscordToken = 'GKeRE0ZgaGFeShZYy4o9Wj3Zm2i1hN';
+
+const generateAuthUrl = (state: string, token: string) =>
+  `${SITE_URL}/login/auth#state=${state}&access_token=${token}`;
 
 beforeAll(async () => {
   await setupBrowser();
 });
 
-afterAll(() => {
-  browser.close();
+afterAll(async () => {
+  await browser.close();
 });
 
 describe('Logged out Pages', () => {
-  let context: BrowserContext;
+  let page: Page;
 
   beforeAll(async () => {
-    context = await browser.createIncognitoBrowserContext();
+    page = await browser.pages().then((pages) => pages[0]);
   });
 
-  afterAll(() => {
-    context.close();
+  afterAll(async () => {
+    await page.close();
   });
 
   test('Renders Home Page', async () => {
-    const page = await context.newPage();
+    const headerTitle = 'header>div>h1>span';
 
     await page.goto(SITE_URL);
-    const headerTitle = 'header>div>h1>span';
     await page.waitForSelector(headerTitle);
 
     const header = await page.$eval(headerTitle, (e) => e.innerHTML);
     expect(header).toBe(`Stellar Quest`);
-    page.close();
   });
 
   test('Renders Sign Up Page', async () => {
-    const page = await context.newPage();
-    await page.goto(SITE_URL);
     const signupBtn = '[data-testid="signupBtn"]';
 
+    await page.goto(SITE_URL);
     await page.waitForSelector(signupBtn);
 
     await Promise.all([page.click(signupBtn), page.waitForNavigation()]);
 
     const header = await page.$eval('header>h1', (e) => e.innerHTML);
     expect(header).toBe(`Sign Up`);
-    page.close();
   });
 
   test('Renders Rules Page', async () => {
-    const page = await context.newPage();
-    await page.goto(SITE_URL);
     const rulesBtn = '[data-testid="rulesBtn"]';
     const headerSelector = 'header>div>h1>span';
 
+    await page.goto(SITE_URL);
     await page.waitForSelector(rulesBtn);
 
     await Promise.all([page.click(rulesBtn), page.waitForNavigation()]);
@@ -98,14 +114,46 @@ describe('Logged out Pages', () => {
 
     const header = await page.$eval(headerSelector, (e) => e.innerHTML);
     expect(header).toBe(`Stellar Quest`);
-    page.close();
+  });
+
+  test('Renders Sign Up page when user attempts to logs in with an unregistered account', async () => {
+    const loginBtn = '[data-testid="loginBtn"]';
+    const headerSelector = 'header>h1';
+
+    await page.goto(SITE_URL);
+    await page.waitForSelector(loginBtn);
+
+    const pageTarget = page.target();
+
+    await page.click(loginBtn);
+
+    const newTarget = await browser.waitForTarget(
+      (target) => target.opener() === pageTarget
+    );
+
+    const newPage = await newTarget.page();
+
+    if (!newPage) throw 'Did not open discord auth page!';
+
+    const discordTokenState = await page.evaluate(() => {
+      return localStorage.getItem('discordTokenState');
+    });
+
+    if (!discordTokenState) throw 'Did not set discordTokenState!';
+
+    await newPage.goto(
+      generateAuthUrl(discordTokenState, unregisteredDiscordToken)
+    );
+
+    await page.waitForSelector(headerSelector);
+    const header = await page.$eval(headerSelector, (e) => e.innerHTML);
+    expect(header).toBe(`Sign Up`);
   });
 });
 
 describe('Authentication', () => {
   let context: BrowserContext;
   let page: Page;
-  let discordPage: Page | null;
   const loginBtn = '[data-testid="loginBtn"]';
   const logoutBtn = '[data-testid="logoutBtn"]';
   const dashboardNav = '[data-testid="dashboardNav"]';
@@ -115,21 +163,22 @@ describe('Authentication', () => {
 
   beforeAll(async () => {
     context = await browser.createIncognitoBrowserContext();
+  });
+
+  beforeEach(async () => {
     page = await context.newPage();
-    await page.goto(SITE_URL);
   });
 
-  afterAll(() => {
-    page.close();
-    context.close();
+  afterEach(async () => {
+    await page.close();
   });
 
-  test('Renders Sign Up page when user attempts to logs in with an unregistered account', async () => {
-    const page = await context.newPage();
-    await page.goto(SITE_URL);
-    const loginBtn = '[data-testid="loginBtn"]';
-    const headerSelector = 'header>h1';
+  afterAll(async () => {
+    await context.close();
+  });
 
+  test('Log in with Discord Token', async () => {
+    await page.goto(SITE_URL);
     await page.waitForSelector(loginBtn);
 
     const pageTarget = page.target();
@@ -141,64 +190,26 @@ describe('Authentication', () => {
     );
     const newPage = await newTarget.page();
 
-    if (!newPage) {
-      throw 'Did not open discord auth page!';
-    }
+    if (!newPage) throw 'Did not open discord auth page!';
 
     const discordTokenState = await page.evaluate(() => {
       return localStorage.getItem('discordTokenState');
     });
+
+    if (!discordTokenState) throw 'Did not set discordTokenState!';
 
     await newPage.goto(
-      `${SITE_URL}/login/auth#state=${discordTokenState}&access_token=${unregisteredDiscordToken}`
-    );
-
-    await page.waitForNavigation();
-
-    await page.waitForSelector(headerSelector);
-
-    const header = await page.$eval(headerSelector, (e) => e.innerHTML);
-    expect(header).toBe(`Sign Up`);
-    page.close();
-  });
-
-  test('Open discord auth page', async () => {
-    await page.goto(SITE_URL);
-
-    await page.waitForSelector(loginBtn);
-
-    const pageTarget = page.target();
-
-    await page.click(loginBtn);
-
-    const newTarget = await browser.waitForTarget(
-      (target) => target.opener() === pageTarget
-    );
-    discordPage = await newTarget.page();
-
-    expect(discordPage).toBeTruthy();
-  });
-
-  test('Log in with Discord Token', async () => {
-    if (!discordPage) {
-      throw 'Did not open discord auth page!';
-    }
-
-    const discordTokenState = await page.evaluate(() => {
-      return localStorage.getItem('discordTokenState');
-    });
-
-    await discordPage.goto(
-      `${SITE_URL}/login/auth#state=${discordTokenState}&access_token=${registeredDiscordToken}`
+      generateAuthUrl(discordTokenState, registeredDiscordToken)
     );
 
     await page.waitForSelector(dashboardNav);
-    const nav = await page.$eval(dashboardNav, (e) => e.hasChildNodes());
 
+    const nav = await page.$eval(dashboardNav, (e) => e.hasChildNodes());
     expect(nav).toBeTruthy();
   });
 
   test('Start practice Quest', async () => {
+    await page.goto(`${SITE_URL}/play`);
     await page.waitForSelector(practiceQuestLink);
 
     await page.$eval(practiceQuestLink, (e) => {
@@ -238,6 +249,7 @@ describe('Authentication', () => {
   });
 
   test('Logs user out', async () => {
+    await page.goto(`${SITE_URL}/play`);
     await page.$eval(dashboardNav, (e) => {
       if (e instanceof HTMLElement) {
         const settingsElement = e.lastElementChild;
