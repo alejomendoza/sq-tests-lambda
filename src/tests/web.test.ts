@@ -53,7 +53,7 @@ const setupBrowser = async () => {
   }
 };
 
-const SITE_URL = 'https://sq-royale-test.vercel.app';
+const SITE_URL = 'https://sq-royale-vite-26x.pages.dev';
 const unregisteredDiscordToken = 'pR9FlM39zGLfdwHgKZiCRxJ4nLQVGl';
 const registeredDiscordToken = 'GKeRE0ZgaGFeShZYy4o9Wj3Zm2i1hN';
 
@@ -239,7 +239,7 @@ describe('Authentication', () => {
 
     const verifyBtnPage = await page.$eval(verifyBtn, (e) => {
       if (e instanceof HTMLElement) {
-        return e.innerHTML;
+        return e.firstElementChild?.innerHTML;
       } else {
         throw 'Verify Solution Button does not exist';
       }
@@ -250,9 +250,13 @@ describe('Authentication', () => {
 
   test('Logs user out', async () => {
     await page.goto(`${SITE_URL}/play`);
+    await page.waitForSelector(dashboardNav);
     await page.$eval(dashboardNav, (e) => {
       if (e instanceof HTMLElement) {
-        const settingsElement = e.lastElementChild;
+        const settingsElement = Array.from(e.children).find((e) => {
+          return e.getAttribute('href') === '/profile';
+        });
+
         if (settingsElement instanceof HTMLElement) {
           settingsElement.click();
         } else {
