@@ -21,7 +21,7 @@ provider:
   apiGateway:
     shouldStartNameWithService: true
   deploymentBucket:
-    name: jest-bucket
+    name: ${self:org}-jest-bucket
 
 functions:
   tests:
