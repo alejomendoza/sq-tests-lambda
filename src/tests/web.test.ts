@@ -163,17 +163,19 @@ describe('Authentication', () => {
 
   beforeAll(async () => {
     context = await browser.createIncognitoBrowserContext();
-  });
-
-  beforeEach(async () => {
     page = await context.newPage();
   });
 
-  afterEach(async () => {
-    await page.close();
-  });
+  // beforeEach(async () => {
+  //   page = await context.newPage();
+  // });
+
+  // afterEach(async () => {
+  //   await page.close();
+  // });
 
   afterAll(async () => {
+    await page.close();
     await context.close();
   });
 
