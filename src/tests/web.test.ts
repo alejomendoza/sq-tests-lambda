@@ -1,55 +1,37 @@
 import { beforeAll, test, afterAll } from '@jest/globals';
 import { Browser, BrowserContext, Page } from 'puppeteer';
 
-let chromium: any;
-let puppeteer: any;
+let puppeteer = require('puppeteer');
 let browser: Browser;
-
-if (process.env.PRODUCTION) {
-  chromium = require('chrome-aws-lambda');
-  puppeteer = chromium.puppeteer;
-} else {
-  puppeteer = require('puppeteer');
-}
 
 const setupBrowser = async () => {
   if (!browser) {
-    if (process.env.PRODUCTION) {
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath,
-        headless: chromium.headless,
-        ignoreHTTPSErrors: true,
-      });
-    } else {
-      browser = await puppeteer.launch({
-        args: [
-          '--allow-running-insecure-content',
-          '--autoplay-policy=user-gesture-required',
-          '--disable-component-update',
-          '--disable-domain-reliability',
-          '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
-          '--disable-print-preview',
-          '--disable-setuid-sandbox',
-          '--disable-site-isolation-trials',
-          '--disable-speech-api',
-          '--disable-web-security',
-          '--disk-cache-size=33554432',
-          '--enable-features=SharedArrayBuffer',
-          '--hide-scrollbars',
-          '--ignore-gpu-blocklist',
-          '--in-process-gpu',
-          '--mute-audio',
-          '--no-default-browser-check',
-          '--no-pings',
-          '--no-sandbox',
-          '--no-zygote',
-          '--use-gl=swiftshader',
-        ],
-        headless: true,
-      });
-    }
+    browser = await puppeteer.launch({
+      args: [
+        '--allow-running-insecure-content',
+        '--autoplay-policy=user-gesture-required',
+        '--disable-component-update',
+        '--disable-domain-reliability',
+        '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
+        '--disable-print-preview',
+        '--disable-setuid-sandbox',
+        '--disable-site-isolation-trials',
+        '--disable-speech-api',
+        '--disable-web-security',
+        '--disk-cache-size=33554432',
+        '--enable-features=SharedArrayBuffer',
+        '--hide-scrollbars',
+        '--ignore-gpu-blocklist',
+        '--in-process-gpu',
+        '--mute-audio',
+        '--no-default-browser-check',
+        '--no-pings',
+        '--no-sandbox',
+        '--no-zygote',
+        '--use-gl=swiftshader',
+      ],
+      headless: true,
+    });
   }
 };
 

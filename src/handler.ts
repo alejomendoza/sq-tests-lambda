@@ -1,7 +1,6 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
 import { runCLI } from 'jest';
 
-const handler = async (event: APIGatewayProxyEvent) => {
+const handler = async (event: any) => {
   const { results } = await runCLI(
     {
       roots: ['./src/tests/'],
