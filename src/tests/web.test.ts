@@ -1,35 +1,11 @@
 import { beforeAll, test, afterAll } from '@jest/globals';
-import { Browser, BrowserContext, Page } from 'puppeteer';
+import { Browser, BrowserContext, Page, launch } from 'puppeteer';
 
-let puppeteer = require('puppeteer');
 let browser: Browser;
 
 const setupBrowser = async () => {
   if (!browser) {
-    browser = await puppeteer.launch({
-      args: [
-        '--allow-running-insecure-content',
-        '--autoplay-policy=user-gesture-required',
-        '--disable-component-update',
-        '--disable-domain-reliability',
-        '--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process',
-        '--disable-print-preview',
-        '--disable-setuid-sandbox',
-        '--disable-site-isolation-trials',
-        '--disable-speech-api',
-        '--disable-web-security',
-        '--disk-cache-size=33554432',
-        '--enable-features=SharedArrayBuffer',
-        '--hide-scrollbars',
-        '--ignore-gpu-blocklist',
-        '--in-process-gpu',
-        '--mute-audio',
-        '--no-default-browser-check',
-        '--no-pings',
-        '--no-sandbox',
-        '--no-zygote',
-        '--use-gl=swiftshader',
-      ],
+    browser = await launch({
       headless: true,
     });
   }
