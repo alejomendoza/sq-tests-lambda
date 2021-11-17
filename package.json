@@ -1,5 +1,5 @@
 {
-  "name": "lambda-service",
+  "name": "sq-e2e-tests",
   "version": "1.0.0",
   "main": "handler.js",
   "devDependencies": {
@@ -20,7 +20,8 @@
   },
   "scripts": {
     "jest:init": "jest --init",
-    "test": "jest"
+    "test": "jest",
+    "compile": "npx webpack"
   },
   "keywords": [],
   "author": "",
