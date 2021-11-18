@@ -4,7 +4,7 @@ const presets = [
     {
       debug: true,
       targets: {
-        node: '14',
+        node: 'current',
       },
     },
   ],

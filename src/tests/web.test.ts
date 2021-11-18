@@ -1,11 +1,11 @@
 import { beforeAll, test, afterAll } from '@jest/globals';
-import { Browser, BrowserContext, Page, launch } from 'puppeteer';
+import pupeteer, { Browser, BrowserContext, Page } from 'puppeteer';
 
 let browser: Browser;
 
 const setupBrowser = async () => {
   if (!browser) {
-    browser = await launch({
+    browser = await pupeteer.launch({
       headless: true,
     });
   }
