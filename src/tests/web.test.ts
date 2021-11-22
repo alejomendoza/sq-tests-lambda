@@ -20,7 +20,7 @@ describe('Logged out Pages', () => {
   test('Renders Rules Page', async () => {
     await page.goto(SITE_URL);
     await expect(page).toClick('a', { text: 'Rules' });
-    await expect(page).toMatch('ELIGIBILITY', { timeout: 1000 });
+    await expect(page).toMatch('Stellar Quest');
   });
 
   test('Renders Sign Up page when user attempts to logs in with an unregistered account', async () => {
