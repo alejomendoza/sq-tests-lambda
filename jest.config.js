@@ -4,6 +4,7 @@
  */
 
 const config = {
+  preset: 'jest-puppeteer',
   testTimeout: 30000,
 };
 
