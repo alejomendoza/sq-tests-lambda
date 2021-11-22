@@ -71,7 +71,7 @@ describe('Authentication', () => {
       generateAuthUrl(discordTokenState, registeredDiscordToken)
     );
 
-    await expect(page).toMatch('Play', { timeout: 2000 });
+    await expect(page).toMatch('Play');
   });
 
   test('Start practice Quest', async () => {

@@ -6,6 +6,7 @@
 const config = {
   preset: 'jest-puppeteer',
   testTimeout: 30000,
+  setupFilesAfterEnv: ['./jest.setup.js'],
 };
 
 module.exports = config;
