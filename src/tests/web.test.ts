@@ -79,6 +79,7 @@ describe('Logged out Pages', () => {
     await Promise.all([page.click(signupBtn), page.waitForNavigation()]);
 
     const header = await page.$eval('header>h1', (e) => e.innerHTML);
+
     expect(header).toBe(`Sign Up`);
   });
 
