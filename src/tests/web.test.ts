@@ -1,4 +1,3 @@
-const SITE_URL = 'https://quest.stellar.org';
 const unregisteredDiscordToken = 'pR9FlM39zGLfdwHgKZiCRxJ4nLQVGl';
 const registeredDiscordToken = 'v5dgtiQi7BhcFwsg0Um6f7ZYKUoKwD';
 
@@ -49,7 +48,7 @@ describe('Logged out Pages', () => {
   });
 });
 
-describe('Authentication', () => {
+describe.skip('Authentication', () => {
   test('Log in with Discord Token', async () => {
     await page.goto(SITE_URL);
     await expect(page).toClick('button', { text: 'Log In' });

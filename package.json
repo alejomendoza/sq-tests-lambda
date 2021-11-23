@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "handler.js",
   "devDependencies": {
-    "ts-node": "^10.4.0",
+    "@types/expect-puppeteer": "^4.4.7",
+    "@types/jest": "^27.0.3",
+    "@types/jest-environment-puppeteer": "^4.4.1",
+    "@types/puppeteer": "^5.4.4",
     "typescript": "^4.3.5"
   },
   "scripts": {
@@ -17,14 +20,7 @@
   "description": "",
   "dependencies": {
     "@babel/core": "^7.16.0",
-    "@babel/preset-env": "^7.16.4",
     "@babel/preset-typescript": "^7.14.5",
-    "@types/expect-puppeteer": "^4.4.7",
-    "@types/express": "^4.17.13",
-    "@types/jest": "^26.0.23",
-    "@types/jest-environment-puppeteer": "^4.4.1",
-    "@types/puppeteer": "^5.4.3",
-    "express": "^4.17.1",
     "jest": "^27.2.1",
     "jest-puppeteer": "^6.0.0",
     "puppeteer": "^10.4.0"

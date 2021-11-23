@@ -1,3 +1,3 @@
-const setDefaultOptions = require('expect-puppeteer').setDefaultOptions;
+const expectPuppeteer = require('expect-puppeteer');
 
-setDefaultOptions({ timeout: 10000 });
+expectPuppeteer.setDefaultOptions({ timeout: 10000 });
