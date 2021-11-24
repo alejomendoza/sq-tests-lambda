@@ -4,26 +4,12 @@ const registeredDiscordToken = 'v5dgtiQi7BhcFwsg0Um6f7ZYKUoKwD';
 const generateAuthUrl = (state: string, token: string) =>
   `${SITE_URL}/login/auth#state=${state}&access_token=${token}`;
 
-describe('Logged out Pages', () => {
-  test('Renders Home Page', async () => {
-    await page.goto(SITE_URL);
-    await expect(page).toMatch('Learn Stellar');
+describe('Discord Login', () => {
+  beforeEach(async () => {
+    await page.goto(SITE_URL, { waitUntil: 'networkidle0' });
   });
 
-  test('Renders Sign Up Page', async () => {
-    await page.goto(SITE_URL);
-    await expect(page).toClick('a', { text: 'Sign Up' });
-    await expect(page).toMatch('Full Name');
-  });
-
-  test('Renders Rules Page', async () => {
-    await page.goto(SITE_URL);
-    await expect(page).toClick('a', { text: 'Rules' });
-    await expect(page).toMatch('Stellar Quest');
-  });
-
-  test('Renders Sign Up page when user attempts to logs in with an unregistered account', async () => {
-    await page.goto(SITE_URL);
+  test('Redirect to Sign Up when logging in with an unregistered account', async () => {
     await expect(page).toClick('button', { text: 'Log In' });
 
     const newTarget = await browser.waitForTarget(
@@ -46,11 +32,8 @@ describe('Logged out Pages', () => {
 
     await expect(page).toMatch('Full Name');
   });
-});
 
-describe.skip('Authentication', () => {
   test('Log in with Discord Token', async () => {
-    await page.goto(SITE_URL);
     await expect(page).toClick('button', { text: 'Log In' });
 
     const newTarget = await browser.waitForTarget(
@@ -70,25 +53,6 @@ describe.skip('Authentication', () => {
       generateAuthUrl(discordTokenState, registeredDiscordToken)
     );
 
-    await expect(page).toMatch('Play');
-  });
-
-  test('Start practice Quest', async () => {
-    await page.goto(`${SITE_URL}/play`);
-    await expect(page).toClick('a', { text: 'Quest 1' });
-    await expect(page).toClick('button', { text: 'Play' });
-
-    await expect(page).toMatch('Verify');
-  });
-
-  test('Logs user out', async () => {
-    await page.goto(`${SITE_URL}/profile`);
-
-    await expect(page).toClick('button', {
-      text: 'Log Out',
-      visible: true,
-    });
-
-    await expect(page).toMatch('Learn Stellar');
+    await expect(page).toMatch('Educational');
   });
 });
