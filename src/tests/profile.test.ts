@@ -6,11 +6,7 @@ describe('Profile Page', () => {
       localStorage.setItem('sq:auth_token', authToken);
     }, AUTH_TOKEN);
 
-    await page.goto(SITE_URL);
-    await expect(page).toMatchElement('a', { text: 'Play' });
-  });
-
-  beforeEach(async () => {
+    await page.goto(SITE_URL, { waitUntil: 'networkidle0' });
     await page.goto(SITE_URL + '/profile', { waitUntil: 'networkidle0' });
   });
 
