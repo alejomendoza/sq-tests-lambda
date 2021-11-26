@@ -18,6 +18,20 @@ describe('Profile Page', () => {
     await expect(page).toMatch('Your Profile Settings');
   });
 
+  test('View badges', async () => {
+    await expect(page).toClick('button', { text: 'View Your Badges' });
+
+    const newTarget = await browser.waitForTarget(
+      (target) => target.opener() === page.target()
+    );
+
+    const newPage = await newTarget.page();
+
+    if (!newPage) throw 'Albedo badge view did not open!';
+
+    await newPage.close();
+  });
+
   test('Change wallet - Continue', async () => {
     await expect(page).toClick('button', { text: 'Wallet' });
     await expect(page).toClick('button', { text: 'Continue' });
@@ -36,9 +50,6 @@ describe('Profile Page', () => {
   test('Change wallet - Cancel', async () => {
     await expect(page).toClick('button', { text: 'Wallet' });
     await expect(page).toClick('button', { text: 'Cancel' });
-    await expect(page).not.toMatch(
-      'Please ensure popups are enabled for this site.'
-    );
   });
 
   test('Complete KYC', async () => {

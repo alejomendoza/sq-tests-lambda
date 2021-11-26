@@ -1,8 +1,14 @@
+require('dotenv/config');
+
+const isLocal = process.env.ENVIRONMENT === 'DEVELOPMENT';
+
 module.exports = {
-  server: {
-    command: 'cd ../app && yarn preview',
-    port: 3000,
-  },
+  ...(!isLocal && {
+    server: {
+      command: 'cd ../app && yarn preview',
+      port: 3000,
+    },
+  }),
   launch: {
     args: [
       '--no-sandbox',
